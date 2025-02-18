@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 알림 시스템</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <!-- Include the config.js file -->
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav id="navbar"></nav>
+
+    <h2>🔔 실시간 알림 시스템</h2>
+
+    <button onclick="connect()">알림 구독</button>
+    <button onclick="disconnect()">연결 해제</button>
+
+    <h3>📩 알림 목록</h3>
+    <ul id="notification-list"></ul>
+
+    <div id="pagination-controls">
+        <button onclick="previousPage()">이전</button>
+        <span id="page-info"></span>
+        <button onclick="nextPage()">다음</button>
+        <div id="page-buttons"></div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let currentPage = 0;
+        let totalPages = 0;
+
+        // ✅ Connect to WebSocket
+        function connect() {
+            if (stompClient !== null) {
+                disconnect();
+            }
+
+            let socket = new SockJS('http://localhost:8080/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({ "Authorization": `Bearer ${token}` }, function(frame) {
+                console.log('✅ WebSocket 연결 성공:', frame);
+
+                // ✅ Subscribe to notifications for user
+                stompClient.subscribe(`/topic/notifications/${userId}`, function(notification) {
+                    showNotification(JSON.parse(notification.body));
+                });
+
+                <!-- alert(`🎉 사용자 ${userId}의 알람을 구독했습니다.`); -->
+                fetchNotifications(); // Fetch previous notifications
+            });
+        }
+
+        // ✅ Show notification in list
+        function showNotification(notification) {
+            let notificationList = document.getElementById("notification-list");
+            let notificationItem = document.createElement("li");
+            
+
+            notificationItem.innerHTML = `
+                📢 ${notification.message} 
+                <button onclick="deleteNotification(${notification.id}, this)">❌ 삭제</button>
+            `;
+
+            notificationList.appendChild(notificationItem);
+        }
+
+        // ✅ Fetch previous notifications with pagination
+        function fetchNotifications() {
+            fetch(`${API_URL}/all?page=${currentPage}&size=${pageSize}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+            
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("notification-list").innerHTML = ""; // Clear old list
+                    data.response.notifications.forEach(showNotification);
+                    updatePaginationInfo(data.response.totalPages);
+                }
+            })
+            .catch(error => console.error("❌ 알림 불러오기 실패:", error));
+        }
+
+        // Update pagination info and create page buttons
+        function updatePaginationInfo(newTotalPages) {
+            totalPages = newTotalPages; // Update the existing totalPages variable
+            document.getElementById("page-info").textContent = `페이지 ${currentPage + 1} / ${totalPages}`;
+            createPageButtons(totalPages);
+        }
+
+        // Create numbered page buttons
+        function createPageButtons(totalPages) {
+            const pageButtonsContainer = document.getElementById("page-buttons");
+            pageButtonsContainer.innerHTML = ""; // Clear existing buttons
+
+            for (let i = 0; i < totalPages; i++) {
+                const button = document.createElement("button");
+                button.textContent = i + 1;
+                button.onclick = () => goToPage(i);
+                pageButtonsContainer.appendChild(button);
+            }
+        }
+
+        // Navigate to a specific page
+        function goToPage(pageNumber) {
+            if (pageNumber >= 0 && pageNumber < totalPages) {
+                currentPage = pageNumber;
+                fetchNotifications();
+            }
+        }
+
+        // Navigate to the next page
+        function nextPage() {
+            console.log(currentPage, totalPages);
+            if (currentPage < totalPages - 1) { // Ensure we don't go beyond the last page
+                currentPage++;
+                fetchNotifications();
+            }
+        }
+
+        // Navigate to the previous page
+        function previousPage() {
+            if (currentPage > 0) { // Ensure we don't go before the first page
+                currentPage--;
+                fetchNotifications();
+            }
+        }
+
+        // ✅ Delete notification
+        function deleteNotification(notificationId, element) {
+            fetch(`${API_URL}/${notificationId}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    element.parentElement.remove(); // Remove from UI
+                }
+            })
+            .catch(error => console.error("❌ 알림 삭제 실패:", error));
+        }
+
+        // Function to load the navigation bar
+        function loadNavbar() {
+            fetch('navbar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                    checkLoginStatus(); // Update navbar after loading
+                })
+                .catch(error => console.error('❌ 네비게이션 바 로드 실패:', error));
+        }
+
+        // Example function to check login status
+        function checkLoginStatus() {
+            // This is a placeholder. Replace with actual login status check.
+            const isLoggedIn = true; // or false
+            updateNavbar(isLoggedIn);
+        }
+
+        window.onload = function() {
+            connect();
+            loadNavbar(); // Load navbar on page load
+        };
+    </script>
+
+</body>
+</html>

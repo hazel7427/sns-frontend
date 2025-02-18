@@ -1,0 +1,49 @@
+<script src="../config.js"></script>
+<script>
+    // Now you can use API_BASE_URL
+    console.log(API_BASE_URL);
+</script>
+
+<ul id="nav-list">
+    <li><a href="/create-post">글작성</a></li>
+    <li><a href="/post-list">글목록보기</a></li>
+    <li><a href="/account-settings">계정설정</a></li>
+    <li><a href="/notifications/notifications.html">알림 보기</a></li>
+    <li><a href="/logout">로그아웃</a></li>
+</ul>
+
+<script>
+    // Call the function to set the initial state
+    updateNavMenu();
+</script>
+<style>
+
+    #nav-list {
+        list-style-type: none; /* Remove bullet points */
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333; /* Background color */
+        position: fixed; /* Fixes the navbar at the top */
+        top: 0;
+        width: 100%; /* Full width */
+        display: flex; /* Display items in a row */
+    }
+    
+    #nav-list li {
+        float: left; /* Align items horizontally */
+
+    }
+    
+    #nav-list li a {
+        display: block;
+        color: white; /* Text color */
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none; /* Remove underline */
+    }
+    
+    #nav-list li a:hover {
+        background-color: #111; /* Hover effect */
+    }
+</style>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Detail</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../config.js"></script>
+    <script src="../storeToken.js"></script>
+    <script src="./comment.js"></script>
+    <script src="../auth.js"></script>
+    <style>
+        .post-image {
+            width: 400px; /* Set the desired width */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar"></nav>
+    <main class="post-container">
+        <div>post</div>
+        <div id="post"></div>
+        <div>Comments</div>
+        <div id="comments"></div>
+    </main>
+    
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('postId') || 1;
+            const token = getToken(); // Use the new getToken function
+            console.log(token);
+
+            checkAuthentication(token);
+            loadNavbar();
+            fetchPost(postId, token);
+        });
+
+        function loadNavbar() {
+            fetch('../navbar/navbar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                    const scripts = document.getElementById('navbar').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerHTML);
+                    }
+                });
+        }
+
+        function fetchPost(postId, token) {
+            fetch(`${API_BASE_URL}/posts/${postId}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayPost(data.response);
+                    loadComments(postId, token);
+                }
+            });
+        }
+
+        function displayPost(post) {
+            console.log(post); // Debugging line to check the post object
+            const postContainer = document.getElementById("post");
+            postContainer.innerHTML = `
+                <div class="post">
+                    <div class="post-header">
+                    </div>
+                    <div class="post-title">제목 : ${post.title}</div>
+                    <div class="post-user">작성자 : ${post.user.name}</div>
+                    <div class="post-content">내용 : ${post.content}</div>
+                    <div class="post-images">
+                        ${post.images.map(imageUrl => `<img src="${imageUrl}" alt="Post Image" class="post-image">`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

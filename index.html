@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Network</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">MySNS</div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item"><i class="fas fa-home"></i> Home</a>
+            <a href="#" class="nav-item"><i class="fas fa-user"></i> Profile</a>
+            <a href="#" class="nav-item"><i class="fas fa-envelope"></i> Messages</a>
+            <a href="#" class="nav-item"><i class="fas fa-bell"></i> Notifications</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="left-sidebar">
+            <!-- Profile section -->
+        </div>
+
+        <div class="feed">
+            <!-- Post creation -->
+            <div class="create-post">
+                <textarea placeholder="What's on your mind?"></textarea>
+                <button class="post-btn">Post</button>
+            </div>
+
+            <!-- Posts feed -->
+            <div class="posts">
+                <!-- Sample post -->
+                <div class="post">
+                    <div class="post-header">
+                        <img src="images/default-avatar.png" alt="User" class="avatar">
+                        <div class="post-info">
+                            <h4>User Name</h4>
+                            <span class="timestamp">2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        This is a sample post content.
+                    </div>
+                    <div class="post-actions">
+                        <button><i class="far fa-heart"></i> Like</button>
+                        <button><i class="far fa-comment"></i> Comment</button>
+                        <button><i class="far fa-share-square"></i> Share</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-sidebar">
+            <!-- Suggestions, trending topics, etc. -->
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html> 
